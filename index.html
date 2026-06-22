@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexSecureX — Consistent Security, Limitless Possibilities</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0c;
+    --bg-2:#111114;
+    --panel:#15151a;
+    --line:#27272d;
+    --red:#c8102e;
+    --red-deep:#7a0d1e;
+    --red-glow:#ff2b4a;
+    --text:#ededf0;
+    --muted:#8a8a92;
+    --mono:#a9a9b3;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--red);color:#fff;}
+
+  /* scanline + grid texture overlay */
+  .grain{
+    position:fixed;inset:0;pointer-events:none;z-index:50;
+    background-image:repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;
+  }
+
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* NAV */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 6%;
+    background:linear-gradient(180deg, rgba(10,10,12,0.92), rgba(10,10,12,0));
+    backdrop-filter:blur(6px);
+  }
+  .logo{
+    font-family:'Oswald',sans-serif;font-weight:700;font-size:1.3rem;
+    letter-spacing:0.5px;display:flex;align-items:center;gap:10px;
+  }
+  .logo .dot{
+    width:9px;height:9px;border-radius:50%;background:var(--red);
+    box-shadow:0 0 8px var(--red-glow);
+    animation:blink 1.6s infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.25;}}
+  .logo span{color:var(--red);}
+  nav ul{display:flex;gap:36px;list-style:none;}
+  nav a{
+    font-size:0.82rem;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);font-weight:500;
+    position:relative;padding-bottom:4px;
+    transition:color .25s;
+  }
+  nav a:hover{color:var(--text);}
+  nav a::after{
+    content:'';position:absolute;left:0;bottom:0;height:1px;width:0;
+    background:var(--red);transition:width .25s;
+  }
+  nav a:hover::after{width:100%;}
+  .nav-cta{
+    border:1px solid var(--red-deep);padding:9px 18px;font-size:0.78rem;
+    letter-spacing:1px;text-transform:uppercase;color:var(--text)!important;
+    transition:all .25s;
+  }
+  .nav-cta:hover{background:var(--red);border-color:var(--red);box-shadow:0 0 18px rgba(200,16,46,0.5);}
+  .nav-cta::after{display:none;}
+
+  /* HERO */
+  .hero{
+    position:relative;min-height:100vh;display:flex;align-items:center;
+    padding:0 6%;
+    background:
+      radial-gradient(ellipse 70% 50% at 75% 20%, rgba(122,13,30,0.25), transparent 60%),
+      linear-gradient(180deg, #0a0a0c 0%, #0d0d10 100%);
+    border-bottom:1px solid var(--line);
+  }
+  .hero-grid-bg{
+    position:absolute;inset:0;opacity:0.5;
+    background-image:
+      linear-gradient(rgba(200,16,46,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,16,46,0.06) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse 60% 60% at 70% 40%, black, transparent 75%);
+  }
+  .hero-content{position:relative;z-index:2;max-width:680px;padding-top:90px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'JetBrains Mono',monospace;font-size:0.78rem;
+    color:var(--red-glow);letter-spacing:1.5px;margin-bottom:26px;
+    border:1px solid var(--red-deep);padding:6px 14px;border-radius:2px;
+    background:rgba(122,13,30,0.1);
+  }
+  .eyebrow::before{content:'●';font-size:0.6rem;animation:blink 1.6s infinite;}
+  h1{
+    font-family:'Oswald',sans-serif;font-weight:700;
+    font-size:clamp(2.6rem, 5.5vw, 4.6rem);
+    line-height:1.05;letter-spacing:-0.5px;margin-bottom:24px;
+    text-transform:uppercase;
+  }
+  h1 em{
+    font-style:normal;color:transparent;
+    background:linear-gradient(100deg, var(--red-glow), var(--red));
+    -webkit-background-clip:text;background-clip:text;
+  }
+  .hero p.lead{
+    font-size:1.08rem;color:var(--muted);line-height:1.7;max-width:520px;margin-bottom:38px;
+  }
+  .hero-actions{display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--red);color:#fff;padding:15px 30px;font-weight:600;
+    font-size:0.92rem;letter-spacing:0.5px;text-transform:uppercase;
+    border:1px solid var(--red);transition:all .25s;
+    box-shadow:0 0 0 rgba(200,16,46,0.4);
+  }
+  .btn-primary:hover{background:#a30d26;box-shadow:0 0 30px rgba(200,16,46,0.55);transform:translateY(-2px);}
+  .btn-ghost{
+    padding:15px 26px;font-size:0.92rem;color:var(--text);letter-spacing:0.5px;
+    text-transform:uppercase;border:1px solid var(--line);transition:all .25s;
+  }
+  .btn-ghost:hover{border-color:var(--muted);background:rgba(255,255,255,0.03);}
+
+  .hero-stats{
+    display:flex;gap:48px;margin-top:64px;padding-top:32px;border-top:1px solid var(--line);
+    max-width:560px;
+  }
+  .stat b{font-family:'Oswald',sans-serif;font-size:1.9rem;color:var(--text);display:block;}
+  .stat span{font-size:0.78rem;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;}
+
+  /* viewfinder card top-right */
+  .viewfinder{
+    position:absolute;right:6%;top:50%;transform:translateY(-50%);
+    width:300px;height:380px;border:1px solid var(--red-deep);
+    display:none;
+  }
+  @media(min-width:1000px){.viewfinder{display:block;}}
+  .vf-corner{position:absolute;width:22px;height:22px;border:2px solid var(--red);}
+  .vf-corner.tl{top:-2px;left:-2px;border-right:none;border-bottom:none;}
+  .vf-corner.tr{top:-2px;right:-2px;border-left:none;border-bottom:none;}
+  .vf-corner.bl{bottom:-2px;left:-2px;border-right:none;border-top:none;}
+  .vf-corner.br{bottom:-2px;right:-2px;border-left:none;border-top:none;}
+  .vf-label{
+    position:absolute;top:14px;left:14px;font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;color:var(--red-glow);letter-spacing:1px;
+  }
+  .vf-time{
+    position:absolute;bottom:14px;right:14px;font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;color:var(--muted);
+  }
+  .vf-body{
+    position:absolute;inset:40px 14px;border:1px dashed rgba(200,16,46,0.25);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .vf-body svg{width:60%;opacity:0.5;}
+
+  /* SECTIONS GENERAL */
+  section{padding:120px 6%;position:relative;}
+  .section-head{margin-bottom:64px;max-width:640px;}
+  .tag{
+    font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--red-glow);
+    letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block;
+  }
+  h2{
+    font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(1.8rem,3.2vw,2.7rem);
+    text-transform:uppercase;letter-spacing:-0.3px;line-height:1.15;
+  }
+  .section-head p{color:var(--muted);margin-top:18px;font-size:1rem;line-height:1.7;}
+
+  /* SERVICES - camera feed cards */
+  .services-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    background:var(--line);border:1px solid var(--line);
+  }
+  @media(max-width:900px){.services-grid{grid-template-columns:1fr;}}
+  .feed-card{
+    background:var(--bg-2);padding:38px 32px;position:relative;
+    transition:background .3s;
+  }
+  .feed-card:hover{background:var(--panel);}
+  .feed-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
+  .feed-id{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:1px;}
+  .feed-rec{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--red-glow);}
+  .feed-rec .d{width:6px;height:6px;border-radius:50%;background:var(--red-glow);animation:blink 1.6s infinite;}
+  .feed-card svg{width:34px;height:34px;stroke:var(--red-glow);margin-bottom:22px;}
+  .feed-card h3{
+    font-family:'Oswald',sans-serif;font-size:1.25rem;text-transform:uppercase;
+    margin-bottom:12px;letter-spacing:0.3px;
+  }
+  .feed-card p{color:var(--muted);font-size:0.92rem;line-height:1.65;margin-bottom:20px;}
+  .feed-card ul{list-style:none;font-size:0.85rem;color:var(--mono);}
+  .feed-card ul li{padding:6px 0;border-top:1px solid var(--line);display:flex;gap:10px;}
+  .feed-card ul li::before{content:'▸';color:var(--red);}
+
+  /* PROCESS timeline */
+  .process{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .timeline{display:flex;gap:0;position:relative;margin-top:20px;}
+  @media(max-width:900px){.timeline{flex-direction:column;}}
+  .timeline::before{
+    content:'';position:absolute;top:18px;left:0;right:0;height:1px;background:var(--line);
+  }
+  @media(max-width:900px){.timeline::before{display:none;}}
+  .t-step{flex:1;position:relative;padding:0 22px 0 0;}
+  .t-step .num{
+    font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--red-glow);
+    background:var(--bg-2);width:36px;height:36px;border:1px solid var(--red-deep);
+    display:flex;align-items:center;justify-content:center;margin-bottom:20px;position:relative;z-index:2;
+  }
+  .t-step h4{font-family:'Oswald',sans-serif;font-size:1.05rem;text-transform:uppercase;margin-bottom:10px;}
+  .t-step p{color:var(--muted);font-size:0.88rem;line-height:1.6;}
+
+  /* WORK / clients */
+  .clients-band{
+    display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;
+  }
+  .client-pill{
+    border:1px solid var(--line);padding:14px 22px;font-family:'JetBrains Mono',monospace;
+    font-size:0.85rem;color:var(--mono);letter-spacing:0.5px;
+  }
+  .work-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:50px;}
+  @media(max-width:900px){.work-grid{grid-template-columns:1fr;}}
+  .work-card{
+    border:1px solid var(--line);padding:32px;background:var(--bg-2);
+  }
+  .work-card .mono{color:var(--red-glow);font-size:0.75rem;letter-spacing:1px;}
+  .work-card h3{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:1.3rem;margin:14px 0 14px;}
+  .work-card p{color:var(--muted);font-size:0.92rem;line-height:1.7;}
+  .work-stats{display:flex;gap:30px;margin-top:22px;padding-top:22px;border-top:1px solid var(--line);}
+  .work-stats div b{display:block;font-family:'Oswald',sans-serif;font-size:1.4rem;color:var(--text);}
+  .work-stats div span{font-size:0.72rem;color:var(--muted);text-transform:uppercase;}
+
+  /* CTA */
+  .cta-section{
+    text-align:center;border-top:1px solid var(--line);
+    background:radial-gradient(ellipse 60% 80% at 50% 0%, rgba(122,13,30,0.18), transparent 70%);
+  }
+  .cta-section h2{margin-bottom:20px;}
+  .cta-section p{color:var(--muted);max-width:520px;margin:0 auto 40px;line-height:1.7;}
+  .cta-actions{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;}
+
+  .contact-form{
+    max-width:560px;margin:50px auto 0;text-align:left;
+    background:var(--panel);border:1px solid var(--line);padding:34px;
+  }
+  .form-row{display:flex;gap:16px;margin-bottom:16px;}
+  @media(max-width:600px){.form-row{flex-direction:column;}}
+  .contact-form input,.contact-form select,.contact-form textarea{
+    flex:1;width:100%;background:var(--bg-2);border:1px solid var(--line);
+    color:var(--text);padding:13px 14px;font-family:'Inter',sans-serif;font-size:0.92rem;
+    margin-bottom:16px;transition:border-color .2s;
+  }
+  .form-row input,.form-row select{margin-bottom:0;}
+  .contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{
+    outline:none;border-color:var(--red);
+  }
+  .contact-form select{appearance:none;cursor:pointer;}
+  .form-submit{width:100%;border:1px solid var(--red);cursor:pointer;}
+  .form-status{margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--muted);text-align:center;}
+  .form-status.ok{color:#4ade80;}
+  .form-status.err{color:var(--red-glow);}
+
+  /* FOOTER */
+  footer{padding:60px 6% 30px;border-top:1px solid var(--line);background:var(--bg-2);}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:50px;margin-bottom:50px;}
+  @media(max-width:800px){.foot-grid{grid-template-columns:1fr;gap:36px;}}
+  .foot-grid h5{font-size:0.78rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;}
+  .foot-grid ul{list-style:none;}
+  .foot-grid ul li{margin-bottom:10px;font-size:0.9rem;color:var(--mono);}
+  .foot-grid ul li a:hover{color:var(--red-glow);}
+  .foot-bottom{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+    padding-top:24px;border-top:1px solid var(--line);font-size:0.78rem;color:var(--muted);
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header>
+  <div class="logo">NEX<span>SECURE</span>X<div class="dot"></div></div>
+  <nav>
+    <ul>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#contact" class="nav-cta">Get Protected</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-content">
+    <div class="eyebrow">SYSTEM STATUS: MONITORING ACTIVE</div>
+    <h1>Consistent <em>Security</em>.<br>Limitless Possibilities.</h1>
+    <p class="lead">NexSecureX designs, installs, and maintains the CCTV, network, and access-control infrastructure that keeps Delhi NCR businesses running — and watched, 24/7.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Request a Site Survey</a>
+      <a href="#services" class="btn-ghost">View Services</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b>27+</b><span>Sites Deployed</span></div>
+      <div class="stat"><b>24/7</b><span>AMC Support</span></div>
+      <div class="stat"><b>100%</b><span>On-Site Verified</span></div>
+    </div>
+  </div>
+
+  <div class="viewfinder">
+    <div class="vf-corner tl"></div><div class="vf-corner tr"></div>
+    <div class="vf-corner bl"></div><div class="vf-corner br"></div>
+    <div class="vf-label">CAM_04 // LOBBY</div>
+    <div class="vf-time" id="liveclock">--:--:--</div>
+    <div class="vf-body">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ff2b4a" stroke-width="1.2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="section-head reveal">
+    <span class="tag">// What We Deploy</span>
+    <h2>Three Systems. One Perimeter.</h2>
+    <p>Every engagement starts the same way: understand the site, the risk, and the budget — then build infrastructure that doesn't need to be thought about again.</p>
+  </div>
+
+  <div class="services-grid">
+    <div class="feed-card reveal">
+      <div class="feed-top"><span class="feed-id">FEED // CCTV-01</span><span class="feed-rec"><span class="d"></span>LIVE</span></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      <h3>CCTV Installation</h3>
+      <p>Dome and bullet camera deployment engineered around blind-spot elimination, not just camera count.</p>
+      <ul>
+        <li>Site survey &amp; coverage mapping</li>
+        <li>DVR/NVR setup &amp; storage sizing</li>
+        <li>Remote viewing configuration</li>
+      </ul>
+    </div>
+
+    <div class="feed-card reveal">
+      <div class="feed-top"><span class="feed-id">FEED // NET-02</span><span class="feed-rec"><span class="d"></span>LIVE</span></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="14" width="20" height="6" rx="1"/><path d="M6 14v-3M12 14V8M18 14v-5"/></svg>
+      <h3>Remote Troubleshooting &amp; Networking</h3>
+      <p>Fast diagnosis and fixes for network and camera issues — on-site or remote, so downtime stays short.</p>
+      <ul>
+        <li>Remote diagnostics &amp; support</li>
+        <li>Switch/router config &amp; VLANs</li>
+        <li>Structured cabling</li>
+      </ul>
+    </div>
+
+    <div class="feed-card reveal">
+      <div class="feed-top"><span class="feed-id">FEED // AMC-03</span><span class="feed-rec"><span class="d"></span>LIVE</span></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>
+      <h3>AMC &amp; Support</h3>
+      <p>Annual maintenance contracts that catch failures before they become downtime — preventive, not reactive.</p>
+      <ul>
+        <li>Scheduled preventive checks</li>
+        <li>Priority breakdown response</li>
+        <li>Firmware &amp; firmware patching</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="process" class="process">
+  <div class="section-head reveal">
+    <span class="tag">// How We Work</span>
+    <h2>Four Stages To Lockdown</h2>
+  </div>
+  <div class="timeline">
+    <div class="t-step reveal"><div class="num">01</div><h4>Survey</h4><p>On-site walkthrough to map risk zones, cable routes, and network load.</p></div>
+    <div class="t-step reveal"><div class="num">02</div><h4>Quote</h4><p>Itemized, transparent pricing — hardware, labor, and timeline, no surprises.</p></div>
+    <div class="t-step reveal"><div class="num">03</div><h4>Deploy</h4><p>Clean installation with minimal disruption to ongoing operations.</p></div>
+    <div class="t-step reveal"><div class="num">04</div><h4>Maintain</h4><p>AMC coverage keeps the system audited, patched, and online.</p></div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="section-head reveal">
+    <span class="tag">// Field Record</span>
+    <h2>Deployed &amp; Trusted</h2>
+    <p>A track record built across retail, construction, and infrastructure clients.</p>
+  </div>
+
+  <div class="clients-band reveal">
+    <div class="client-pill">AHLUWALIA CONTRACTS</div>
+    <div class="client-pill">NS ARCUS</div>
+    <div class="client-pill">MCDONALD'S (27 OUTLETS)</div>
+  </div>
+
+  <div class="work-grid">
+    <div class="work-card reveal">
+      <span class="mono">PROJECT // SD-WAN ROLLOUT</span>
+      <h3>27-Outlet SD-WAN Deployment</h3>
+      <p>End-to-end network rollout across 27 live restaurant locations, standardizing connectivity without disrupting daily operations.</p>
+      <div class="work-stats">
+        <div><b>27</b><span>Outlets</span></div>
+        <div><b>L1/L2</b><span>Support Tier</span></div>
+      </div>
+    </div>
+    <div class="work-card reveal">
+      <span class="mono">PROJECT // SURVEILLANCE</span>
+      <h3>Large-Scale CCTV Rollout</h3>
+      <p>Full-perimeter camera coverage and DVR infrastructure for construction and commercial sites, including Ahluwalia Contracts and NS Arcus.</p>
+      <div class="work-stats">
+        <div><b>2+</b><span>Major Clients</span></div>
+        <div><b>100%</b><span>Coverage Verified</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="cta-section">
+  <span class="tag">// Next Step</span>
+  <h2>Let's Secure Your Site</h2>
+  <p>Tell us the location and what you're protecting. We'll schedule a survey and send back a quote within 48 hours.</p>
+  <div class="cta-actions">
+    <a href="tel:+919289461334" class="btn-primary">Call Now</a>
+    <a href="https://wa.me/919289461334?text=Hi%20NexSecureX%2C%20I%27d%20like%20a%20quote" target="_blank" class="btn-ghost">WhatsApp Us</a>
+    <a href="mailto:nexsecurex01@gmail.com" class="btn-ghost">Email Us</a>
+  </div>
+
+  <form class="contact-form reveal" id="leadForm" action="https://formspree.io/f/https://formspree.io/f/xykqykbd" method="POST">
+    <div class="form-row">
+      <input type="text" name="name" placeholder="Your Name" required>
+      <input type="tel" name="phone" placeholder="Phone Number" required>
+    </div>
+    <div class="form-row">
+      <input type="text" name="location" placeholder="Site Location (Area, City)" required>
+      <select name="service" required>
+        <option value="" disabled selected>Select Service</option>
+        <option value="CCTV Installation">CCTV Installation</option>
+        <option value="Remote Troubleshooting & Networking">Remote Troubleshooting & Networking</option>
+        <option value="AMC Support">AMC Support</option>
+      </select>
+    </div>
+    <textarea name="message" placeholder="Tell us what you need secured..." rows="4"></textarea>
+    <button type="submit" class="btn-primary form-submit">Send Request</button>
+    <p class="form-status" id="formStatus"></p>
+  </form>
+</section>
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <div class="logo" style="margin-bottom:14px;">NEX<span>SECURE</span>X</div>
+      <p style="color:var(--muted);font-size:0.9rem;max-width:320px;line-height:1.7;">Security and IT infrastructure for businesses across Delhi NCR — CCTV, networking, and AMC, handled end to end.</p>
+    </div>
+    <div>
+      <h5>Services</h5>
+      <ul>
+        <li><a href="#services">CCTV Installation</a></li>
+        <li><a href="#services">Networking / SD-WAN</a></li>
+        <li><a href="#services">AMC Support</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Contact</h5>
+      <ul>
+        <li><a href="mailto:nexsecurex01@gmail.com">nexsecurex01@gmail.com</a></li>
+        <li><a href="tel:+919289461334">+91 92894 61334</a></li>
+        <li>Dwarka, Delhi NCR</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 NEXSECUREX. ALL SYSTEMS MONITORED.</span>
+    <span>BUILT FOR UPTIME.</span>
+  </div>
+</footer>
+
+<script>
+  // live clock for viewfinder
+  function tick(){
+    const el = document.getElementById('liveclock');
+    if(el) el.textContent = new Date().toLocaleTimeString('en-GB');
+  }
+  setInterval(tick, 1000); tick();
+
+  // scroll reveal
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // contact form submit
+  const leadForm = document.getElementById('leadForm');
+  const status = document.getElementById('formStatus');
+  if(leadForm){
+    leadForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      status.className='form-status';
+      status.textContent='Sending...';
+      try{
+        const res = await fetch(leadForm.action, {
+          method:'POST',
+          body:new FormData(leadForm),
+          headers:{'Accept':'application/json'}
+        });
+        if(res.ok){
+          status.textContent='Request sent. We will call you shortly.';
+          status.className='form-status ok';
+          leadForm.reset();
+        } else {
+          status.textContent='Could not send. Please call or WhatsApp us directly.';
+          status.className='form-status err';
+        }
+      } catch(err){
+        status.textContent='Could not send. Please call or WhatsApp us directly.';
+        status.className='form-status err';
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
